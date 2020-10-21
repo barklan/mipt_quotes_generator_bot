@@ -2,3 +2,4 @@ beautifulsoup4
 python-telegram-bot
 markovify
 vk_api
+spacy

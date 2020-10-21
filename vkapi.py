@@ -15,9 +15,13 @@ def get_wall_posts(token, group_id):
     vk_session = vk_api.VkApi(token=token)
     vk = vk_session.get_api()
 
-    posts = vk.wall.get(owner_id=group_id, count=100)
     res = []
-    for i in posts['items']:
-        res.append(i['text'])
+    for i in range(40):
+        try:
+            posts = vk.wall.get(owner_id=group_id, count=100, offset=i*100)
+            for post in posts['items']:
+                res.append(post['text'])
+        except:
+            pass
     
     return res

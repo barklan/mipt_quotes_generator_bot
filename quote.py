@@ -1,6 +1,8 @@
 import vkapi
 import markovify
 from settings import vktoken, target_id
+import re
+import spacy
 
 
 def cleaner(posts):
@@ -12,21 +14,12 @@ def cleaner(posts):
     '''
 
     for post in cleaned_posts:
-        if (len(post) > 200):
+        if (len(post) > 300):
             cleaned_posts.remove(post)
 
-    for post in cleaned_posts:
-        if (':' in post):
-            cleaned_posts.remove(post)
-
-
-    '''
-    TODO
-    'Гомоморфный образ группы,\nБудь во имя коммунизма\nИзоморфен фактор-группе\nПо ядру гомоморфизма!\n\n#Богданов_mipt'
-
-    '*семинар по мат.анализу*\nРебята, я даже не знаю как вам прорекламировать этот ужас. Терпите, терпите... \n\n#Дымарский_mipt'
-
-    '''
+    # for post in cleaned_posts:
+    #     if (':' in post):
+    #         cleaned_posts.remove(post)
 
 
     '''
@@ -39,6 +32,14 @@ def cleaner(posts):
         post = segmentlist[0]
         post = post[:-1]
         cleaned_posts[i] = post
+
+
+    for i in range(len(cleaned_posts)):
+        try:
+            if cleaned_posts[i][-1] == '.' or cleaned_posts[i][-1] == '!' or cleaned_posts[i][-1] == '?' or cleaned_posts[i][-1] == '*':
+                cleaned_posts[i] = cleaned_posts[i] + '\n'
+        except:
+            continue
 
 
     return cleaned_posts
@@ -70,11 +71,38 @@ def fit_model():
         text = file.read()
 
     # Build the model.
-    text_model = markovify.NewlineText(text, state_size=1)
+    # text_model = markovify.Text(text, state_size=2)
+    
+    nlp = spacy.load("en_core_web_sm")
+
+    # class POSifiedText(markovify.Text):
+    #     def word_split(self, sentence):
+    #         return ["::".join((word.orth_, word.pos_)) for word in nlp(sentence)]
+
+    #     def word_join(self, words):
+    #         sentence = " ".join(word.split("::")[0] for word in words)
+    #         return sentence
+
+
+    # text_model = POSifiedText(text, state_size=2)
+    text_model = markovify.NewlineText(text, state_size=2)
 
     return text_model
 
 
 def get_quote(model):
-    return model.make_sentence()
+    lng = 65
+    q = model.make_short_sentence(lng)
+    while q is None :
+        q = model.make_short_sentence(lng)
+
+    while len(q) < 15:
+        q = model.make_short_sentence(lng)
+
+    if q[0] == '.':
+        q = q[1:]
+
+    if q[-1:-2] == '..':
+        q = q[:-1]
+    return q
 
