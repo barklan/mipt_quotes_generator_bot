@@ -1,5 +1,3 @@
 # mipt_quotes_generator_bot
-### v0.0.2 f
 
-This bot is on Telegram:
-`@mipt_quotes_generator_bot`
+This bot generates scrapes quotes and generates new ones using markov chains.
